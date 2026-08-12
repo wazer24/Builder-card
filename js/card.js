@@ -9,7 +9,7 @@ import { loadImage, smartCrop } from './image-utils.js';
 
 // Card template asset path
 const CARD_TEMPLATE_PATH = '/assets/card-template.png';
-const LOGO_PATH = '/assets/logo.png';
+const LOGO_PATH = '/assets/logo.svg';
 
 // Card output dimensions (optimized for X timeline display)
 const CARD_WIDTH = 1200;
@@ -83,8 +83,8 @@ export async function generateCard(imageFile, name, stack) {
 
     // 1. Draw background - gradient base (in case template doesn't cover fully)
     const bgGradient = ctx.createLinearGradient(0, 0, CARD_WIDTH, CARD_HEIGHT);
-    bgGradient.addColorStop(0, '#0a0f1e');
-    bgGradient.addColorStop(1, '#111827');
+    bgGradient.addColorStop(0, '#0A4B25');
+    bgGradient.addColorStop(1, '#063318');
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
 
@@ -105,8 +105,8 @@ export async function generateCard(imageFile, name, stack) {
         PHOTO_CENTER_X - PHOTO_RADIUS, PHOTO_CENTER_Y - PHOTO_RADIUS,
         PHOTO_CENTER_X + PHOTO_RADIUS, PHOTO_CENTER_Y + PHOTO_RADIUS
     );
-    borderGrad.addColorStop(0, '#ff6b5a');
-    borderGrad.addColorStop(1, '#00d4aa');
+    borderGrad.addColorStop(0, '#FF0080');
+    borderGrad.addColorStop(1, '#FEE101');
     ctx.fillStyle = borderGrad;
     ctx.fill();
     ctx.restore();
@@ -127,22 +127,44 @@ export async function generateCard(imageFile, name, stack) {
     );
     ctx.restore();
 
+    // Draw "APPROVED" Stamp on the photo
+    ctx.save();
+    ctx.translate(PHOTO_CENTER_X + 80, PHOTO_CENTER_Y + 85);
+    ctx.rotate(-Math.PI / 8); // Rotate slightly left
+    
+    // Stamp border
+    ctx.strokeStyle = '#FF0080';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(-60, -22, 120, 44);
+    
+    // Stamp inner border (double border effect)
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-55, -17, 110, 34);
+    
+    // Stamp text
+    ctx.fillStyle = '#FF0080';
+    ctx.font = '900 22px "Space Grotesk", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('APPROVED', 0, 2);
+    ctx.restore();
+
     // 4. Draw "BUILDER ID" header label
     ctx.font = '600 18px "Space Grotesk", sans-serif';
-    ctx.fillStyle = '#ff6b5a';
+    ctx.fillStyle = '#ffffff';
     ctx.letterSpacing = '4px';
     ctx.fillText('B U I L D E R   I D', TEXT_X, 180);
 
     // Decorative line under header
     const lineGrad = ctx.createLinearGradient(TEXT_X, 0, TEXT_X + 300, 0);
-    lineGrad.addColorStop(0, '#ff6b5a');
-    lineGrad.addColorStop(1, 'rgba(0, 212, 170, 0.3)');
+    lineGrad.addColorStop(0, '#FF0080');
+    lineGrad.addColorStop(1, 'rgba(254, 225, 1, 0.3)');
     ctx.fillStyle = lineGrad;
     ctx.fillRect(TEXT_X, 195, 300, 2);
 
     // 5. Name
     ctx.font = 'bold 48px "Outfit", sans-serif';
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#FEE101';
     ctx.letterSpacing = '0px';
     const displayName = name.trim() || 'Your Name';
     // Truncate if too long
@@ -151,7 +173,7 @@ export async function generateCard(imageFile, name, stack) {
 
     // 6. Stack/Role
     ctx.font = '500 28px "Space Grotesk", sans-serif';
-    ctx.fillStyle = '#8a8fa8';
+    ctx.fillStyle = '#ffffff';
     const displayStack = stack.trim() || 'Full-Stack Builder';
     const truncatedStack = truncateText(ctx, displayStack, 500);
     ctx.fillText(truncatedStack, TEXT_X, STACK_Y);
@@ -159,18 +181,18 @@ export async function generateCard(imageFile, name, stack) {
     // 7. Generated builder title
     const builderTitle = generateBuilderTitle();
     ctx.font = 'italic 26px "Space Grotesk", sans-serif';
-    ctx.fillStyle = '#ffd700';
+    ctx.fillStyle = '#FF0080';
     ctx.fillText(`" ${builderTitle} "`, TEXT_X, TITLE_Y);
 
     // 8. Bottom branding bar
-    ctx.fillStyle = 'rgba(10, 15, 30, 0.85)';
+    ctx.fillStyle = 'rgba(2, 25, 10, 0.85)'; // Deep tropical dark green
     ctx.fillRect(0, CARD_HEIGHT - 70, CARD_WIDTH, 70);
 
     // Bottom divider line
     const divGrad = ctx.createLinearGradient(0, 0, CARD_WIDTH, 0);
-    divGrad.addColorStop(0, '#ff6b5a');
-    divGrad.addColorStop(0.5, '#ffd700');
-    divGrad.addColorStop(1, '#00d4aa');
+    divGrad.addColorStop(0, '#FF0080');
+    divGrad.addColorStop(0.5, '#FEE101');
+    divGrad.addColorStop(1, '#FF0080');
     ctx.fillStyle = divGrad;
     ctx.fillRect(0, CARD_HEIGHT - 70, CARD_WIDTH, 3);
 
@@ -185,14 +207,14 @@ export async function generateCard(imageFile, name, stack) {
 
     // Hashtag on the right
     ctx.font = '500 20px "Space Grotesk", sans-serif';
-    ctx.fillStyle = '#00d4aa';
+    ctx.fillStyle = '#FEE101';
     ctx.textAlign = 'right';
     ctx.fillText('#FrameInGoa', CARD_WIDTH - 30, CARD_HEIGHT - 30);
     ctx.textAlign = 'left'; // Reset
 
     // Date
     ctx.font = '400 16px "Space Grotesk", sans-serif';
-    ctx.fillStyle = '#555a70';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; // Lighter grey-white for readability
     ctx.fillText('August 2026 • Goa, India', 85, CARD_HEIGHT - 52);
 
     return canvas;

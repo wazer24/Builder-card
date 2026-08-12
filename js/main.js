@@ -4,26 +4,16 @@
  */
 
 import { createThumbnail } from './image-utils.js';
-import { preloadFrame, generateFrame } from './frame.js';
 import { preloadCard, generateCard } from './card.js';
 import { downloadImage, shareToX } from './share.js';
 
 // ─── State ───────────────────────────────────────────────────
 
 let currentCanvas = null;   // The generated canvas
-let currentFormat = 'frame'; // 'frame' or 'card'
+let currentFormat = 'card';
 let cardPhotoFile = null;    // Stored file for Format B (needed when "Generate" is clicked)
 
 // ─── DOM References ──────────────────────────────────────────
-
-const tabs = document.querySelectorAll('.tab');
-const panelFrame = document.getElementById('panel-frame');
-const panelCard = document.getElementById('panel-card');
-
-// Frame
-const fileInputFrame = document.getElementById('file-input-frame');
-const uploadZoneFrame = document.getElementById('upload-zone-frame');
-const loadingFrame = document.getElementById('loading-frame');
 
 // Card
 const fileInputCard = document.getElementById('file-input-card');
@@ -54,17 +44,8 @@ const toastMessage = document.getElementById('toast-message');
 // ─── Initialization ──────────────────────────────────────────
 
 async function init() {
-    // Pre-load frame and card assets in the background
-    preloadFrame().catch(console.warn);
+    // Pre-load card assets in the background
     preloadCard().catch(console.warn);
-
-    // Tab switching
-    tabs.forEach((tab) => {
-        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
-    });
-
-    // Frame: auto-generate on file select
-    fileInputFrame.addEventListener('change', handleFrameUpload);
 
     // Card: show fields on file select
     fileInputCard.addEventListener('change', handleCardUpload);
@@ -75,66 +56,13 @@ async function init() {
     });
     btnGenerateCard.addEventListener('click', handleCardGenerate);
 
-    // Drag and drop for both upload zones
-    setupDragDrop(uploadZoneFrame, fileInputFrame);
+    // Drag and drop for upload zone
     setupDragDrop(uploadZoneCard, fileInputCard);
 
     // Result actions
     btnDownload.addEventListener('click', handleDownload);
     btnShare.addEventListener('click', handleShare);
     btnNew.addEventListener('click', handleNew);
-}
-
-// ─── Tab Switching ───────────────────────────────────────────
-
-function switchTab(tabName) {
-    currentFormat = tabName;
-
-    tabs.forEach((t) => {
-        const isActive = t.dataset.tab === tabName;
-        t.classList.toggle('tab--active', isActive);
-        t.setAttribute('aria-selected', isActive);
-    });
-
-    if (tabName === 'frame') {
-        panelFrame.classList.add('panel--active');
-        panelFrame.hidden = false;
-        panelCard.classList.remove('panel--active');
-        panelCard.hidden = true;
-    } else {
-        panelCard.classList.add('panel--active');
-        panelCard.hidden = false;
-        panelFrame.classList.remove('panel--active');
-        panelFrame.hidden = true;
-    }
-
-    // Hide result when switching tabs
-    hideResult();
-}
-
-// ─── Format A: Frame Upload ─────────────────────────────────
-
-async function handleFrameUpload(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Show loading
-    uploadZoneFrame.querySelector('.upload-zone__content').classList.add('hidden');
-    loadingFrame.classList.remove('hidden');
-
-    try {
-        currentCanvas = await generateFrame(file);
-        currentFormat = 'frame';
-        showResult('Your HH Goa 2026 Frame');
-    } catch (err) {
-        console.error('Frame generation failed:', err);
-        showToast('Something went wrong. Try a different photo.');
-    } finally {
-        loadingFrame.classList.add('hidden');
-        uploadZoneFrame.querySelector('.upload-zone__content').classList.remove('hidden');
-        // Reset the file input so the same file can be re-selected
-        fileInputFrame.value = '';
-    }
 }
 
 // ─── Format B: Card Upload & Generate ────────────────────────
@@ -239,9 +167,7 @@ function hideResult() {
 
 function handleDownload() {
     if (!currentCanvas) return;
-    const filename = currentFormat === 'card'
-        ? 'hh-goa-2026-builder-id.png'
-        : 'hh-goa-2026-frame.png';
+    const filename = 'hh-goa-2026-builder-id.png';
     downloadImage(currentCanvas, filename);
     showToast('Image downloaded! 🎉');
 }
